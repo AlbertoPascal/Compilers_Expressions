@@ -53,9 +53,9 @@ def handleOr():
     print("Appending new connection: " + str((last_node_arr[0][2], "E", Node_count)))
     Connection_list.append((last_node_arr[0][2], "E", Node_count))
     last_node_arr = []
-    last_node_arr.append((Connection_list[-1][0], "E", Node_count))
+    last_node_arr.append((Connection_list[-1][0], "E", Node_count)) #podría estar afectando el conenction list
     first_node_arr = []
-    first_node_arr.append((Node_count -1, "E", Connection_list[-1][2]))
+    first_node_arr.append((Node_count -1, "E", Connection_list[-1][2])) #podría estar actualizandose mal.
     
     print("****************Newest Inicial node*******************")
     print(first_node_arr[0][0])
@@ -183,12 +183,12 @@ def interpretSingleInstruct(string_to_interpret):
                 #print("Need to update my last_node_arr due to my string being" + string_to_interpret[string_to_interpret.index(i) +1])
                 last_node_arr = []
                 last_node_arr.append((Node_count, i, Node_count + 1))
-            Connection_list.append((Node_count, i, Node_count + 1))
-            print("Added" + str((Node_count, i, Node_count + 1)))
             if(handled_pipe):
                 Connection_list.append((first_node_arr[0][0], "E", Node_count))
                 print("Added pipe initial connection: " + str(Connection_list[-1]))
                 handled_pipe=False
+            Connection_list.append((Node_count, i, Node_count + 1))
+            print("Added" + str((Node_count, i, Node_count + 1)))
             Node_count = Node_count + 1
             
     #Node_count = Node_count +1 #Prepare for next instruction
@@ -202,7 +202,7 @@ def interpretSingleInstruct(string_to_interpret):
     print("My end node is now " + str(last_node_arr))
 def preparePipe():
     global Node_count, Connection_list
-    Node_count = Node_count + 1
+
     Connection_list.append("OR")
 def readRegex(regex, iter_number, found_parenthesis_at):
     global Connection_list, Regex_stack, Expression_count, pending_connections, last_node_arr, first_node_arr
@@ -307,6 +307,6 @@ Regex_stack = []
 Connection_list = []
 Node_count = 0
 Expression_count=0
-regex = "a*|b"
+regex = "(ab)*|b*|(cd)*"
 readRegex(regex,0,0)
 drawGraph()
