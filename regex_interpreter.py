@@ -476,7 +476,6 @@ def cleanDFA():
     global DFA
     for node in DFA:
         for key in node:
-            print(node[key])
             if (node[key] != ""):
                 if node[key][-1] == ",":
                     node[key] = node[key][:-1]
