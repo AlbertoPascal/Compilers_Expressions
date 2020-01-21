@@ -344,11 +344,6 @@ def checkDestinations(nodeArr):
                     
         it += 1
     
-    for node in DFA:
-        for key in node:
-            if (node[key] != ""):
-                if node[key][-1] == ",":
-                    node[key] = node[key][:-1]
                 
 def NFAtoDFA():
     global transitionTable, Node_count, DFA, edges, edgesDFA, first_node_arr
@@ -477,6 +472,15 @@ def readRegex(regex, iter_number, found_parenthesis_at):
                     break
         #print("Resulting Connection List after everything" + str(Connection_list))
 
+def cleanDFA():
+    global DFA
+    for node in DFA:
+        for key in node:
+            print(node[key])
+            if (node[key] != ""):
+                if node[key][-1] == ",":
+                    node[key] = node[key][:-1]
+
 transitionTable = []
 edges = []
 edgesDFA = None
@@ -491,12 +495,14 @@ Regex_stack = []
 Connection_list = []
 Node_count = 0
 Expression_count=0
-regex = "(ab)"
+regex = "(01)"
 update_initial=False
 readRegex(regex,0,0)
 if (generateTable() == True):
     NFAtoDFA()
 else:
     DFA = transitionTable;
+
+cleanDFA()
 drawGraph()
 print(DFA)
