@@ -106,7 +106,7 @@ def handleAsteriskPlus(invoker_char):
     if (Connection_list[-1] == "SoL"): #Agarrar del SoL anterior a su EoL. 
          #print("pendiente")   
          #Siempre vamos a tener que agarrar del SoL anterior al EoL. el último nodo del SoL anterior siempre es connection_list[-3] (SoL, EoL, Nodo interesante)]
-         if ( invoker_char == "*"):
+         if ( invoker_char == "*" or invoker_char == "+"):
             print("Before removing " + str(Connection_list))
             Connection_list = Connection_list[:-2]
             print("Removed previous EoL *******************************")
@@ -118,9 +118,9 @@ def handleAsteriskPlus(invoker_char):
          print("I took as a final node value " + str(final_node) + " from " + str(Connection_list[-1]) )
          initial_node = ""
          debug_iter = 0
-         Sol_count = 0 #The number of expressions to be gone through before taking a value will be kept tracked of with this
+        # Sol_count = 1 #The number of expressions to be gone through before taking a value will be kept tracked of with this
          #Innitial_node es el primero despues delSoL anterior.
-         for i in range(len(Connection_list) - 1,-1,-1,):
+         for i in range(len(Connection_list) - 2,-1,-1,):
              if debug_iter == 0:
                  print("debugging list " + str(Connection_list))
                  debug_iter=1
@@ -128,10 +128,10 @@ def handleAsteriskPlus(invoker_char):
              if Connection_list[i] == "SoL":
                  initial_node = str(Connection_list[i+1][0])
                  #print("My initial node should be " + initial_node)
-                 Sol_count = Sol_count +1
-                 print("My sol count is now " + str(Sol_count))
-                 if Sol_count == Expression_count:
-                     break
+                 #Sol_count = Sol_count +1
+                # print("My sol count is now " + str(Sol_count))
+                 #if Sol_count >= Expression_count:
+                 break
          Connection_list.append((final_node, "E", initial_node))
          if(invoker_char == '*'):
             Connection_list.append((initial_node, "E", Node_count + 1))
@@ -271,6 +271,7 @@ def readRegex(regex, iter_number, found_parenthesis_at):
                     print("Updating inner parenthesis position")
                     print("most inner parenthesis found up to now is in " + str(inner_parenthesis_pos))
                     inner_parenthesis_pos +=i
+                    update_initial=True
                     #current_string = ""
                     if (pending_connections):
                         print("I have pending connections for I had an Or") #iterate to previous OR before adding.
@@ -288,7 +289,7 @@ def readRegex(regex, iter_number, found_parenthesis_at):
                         called_by_parenthesis=True
                 elif(Regex_stack[i]==")"):
                     Expression_count = Expression_count + 1
-                    if(i + 1 < len(Regex_stack) and Regex_stack[i+1] == "*"):
+                    if(i + 1 < len(Regex_stack) and (Regex_stack[i+1] == "*" or Regex_stack[i+1] == "+")):
                         special_char = True
                         special_char_pos = i+1
                         
@@ -352,6 +353,7 @@ Regex_stack = []
 Connection_list = []
 Node_count = 0
 Expression_count=0
-regex = "a*|(w(b|x))|d"
+regex = "r|(ab)*|p+"
+update_initial=False
 readRegex(regex,0,0)
 drawGraph()
