@@ -234,6 +234,86 @@ def preparePipe():
     global Node_count, Connection_list
 
     Connection_list.append("OR")
+def generateTable():
+    global Connection_list, Node_count, transitionTable, edges
+    
+    
+    for i in range (len(Connection_list)):
+        if (Connection_list[i] != "SoL"):
+            if (Connection_list[i] != "EoL"):
+                if (Connection_list[i][1] not in edges):
+                    edges.append(Connection_list[i][1])    
+    
+    for j in range (0, Node_count+1):
+        transitionTable.append(dict())
+        transitionTable[j]["Node"] = str(j)
+        for i in edges:           
+            transitionTable[j][i] = ""
+
+    #print(Connection_list)
+    for i in range (len(Connection_list)):
+        if (Connection_list[i] != "SoL"):
+            if (Connection_list[i] != "EoL"):
+                transitionTable[int(Connection_list[i][0])][Connection_list[i][1]] += str(Connection_list[i][2]) + ","
+
+    for nodes in transitionTable:
+        if (nodes["E"] != ""):
+            if (nodes["E"][-1] == ","):
+                nodes["E"] = nodes["E"][:-1]
+
+    #print("TT" + str(transitionTable))
+
+
+def getEclose(currentRead):
+    global transitionTable, Node_count, DFA, edges, edgesDFA
+
+    nodeForE = currentRead
+    if(transitionTable[int(nodeForE)]["E"] != ""):
+        newNode = nodeForE + "," + transitionTable[int(nodeForE)]["E"]
+    else:
+        newNode = nodeForE + transitionTable[int(nodeForE)]["E"]
+    
+    return newNode
+        
+def checkDestinations(nodeArr):
+    global transitionTable, Node_count, DFA, edges, edgesDFA
+    
+    for nodes in nodeArr:
+        DFA.append(dict())
+        DFA[-1]["Node"] = nodes
+        checkConn = [x.strip() for x in nodes.split(',')]
+        
+        for nodes_separated in checkConn:
+            #print("node to check: "+nodes_separated)
+            for edges in edgesDFA:
+                #print("edge: "+str(edges))
+                path = str(transitionTable[int(nodes_separated)][str(edges)])
+                DFA[-1][str(edges)] = path
+                
+                if (path != ""):
+                    if (path[-1] == ","):
+                        path = path[:-1]
+                    #print(".....equals: "+path)
+                    DFA[-1][str(edges)] += transitionTable[int(path)]["E"]
+                    #print("To add: "+str(transitionTable[int(path)] ))
+                
+def NFAtoDFA():
+    global transitionTable, Node_count, DFA, edges, edgesDFA, first_node_arr
+    currentRead = ""
+    nodeArr = [str(first_node_arr[0][0])]
+    
+    edgesDFA = list(filter(lambda a: a != 'E', edges))
+
+    for nodes in range(0, Node_count+1):
+        
+        for inp in edgesDFA:
+            currentRead = transitionTable[nodes][inp]
+            if (currentRead != ""):
+                if (currentRead[-1] == ","):
+                    currentRead = currentRead[:-1]
+                nodeArr.append(getEclose(currentRead))
+               
+    checkDestinations(nodeArr)
 def readRegex(regex, iter_number, found_parenthesis_at):
     global Connection_list, Regex_stack, Expression_count, pending_connections, last_node_arr, first_node_arr
     print("starting iteration " + str(iter_number))
@@ -343,6 +423,11 @@ def readRegex(regex, iter_number, found_parenthesis_at):
                     Connection_list = Connection_list[:i] + t_list + Connection_list[i:]
                     break
         print("Resulting Connection List after everything" + str(Connection_list))
+
+transitionTable = []
+edges = []
+edgesDFA = None
+DFA = []
 handled_pipe=False
 interpretation_called = 0
 first_node_arr = []
@@ -353,7 +438,11 @@ Regex_stack = []
 Connection_list = []
 Node_count = 0
 Expression_count=0
-regex = "r|(ab)*|p+"
+regex = "(ab)*"
 update_initial=False
 readRegex(regex,0,0)
 drawGraph()
+generateTable()
+NFAtoDFA()
+
+print(DFA)
