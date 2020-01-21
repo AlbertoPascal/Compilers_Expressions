@@ -46,7 +46,7 @@ def handleOr():
     print("Received an |")
     #Adding the new first and last nodes
     Node_count+=1
-    
+    Expression_count=0
     Connection_list.append((Node_count, "E", first_node_arr[0][0]))
     print("Appending new connection: " + str((Node_count, "E", first_node_arr[0][0])))
     Node_count+=1
@@ -120,7 +120,7 @@ def handleAsteriskPlus(invoker_char):
          debug_iter = 0
          Sol_count = 0 #The number of expressions to be gone through before taking a value will be kept tracked of with this
          #Innitial_node es el primero despues delSoL anterior.
-         for i in range(len(Connection_list) - 2,-1,-1,):
+         for i in range(len(Connection_list) - 1,-1,-1,):
              if debug_iter == 0:
                  print("debugging list " + str(Connection_list))
                  debug_iter=1
@@ -156,10 +156,21 @@ def handleAsteriskPlus(invoker_char):
         Connection_list.append((final_node, "E", initial_node))
     print("Resulting Connection List is :----------------------------------------------------")
     print(Connection_list)
+def check_new_initial(string_to_interpret):
+    global interpretation_called, first_node_arr
+    if string_to_interpret != "*":
+        interpretation_called+=1
+        current_sol_count=0
+        for i in Connection_list:
+            if i == "SoL":
+                current_sol_count+=1
+                if current_sol_count == interpretation_called:
+                    first_node_arr = Connection_list[Connection_list.index(i+1)]
+                    print("Updated my starter due to obligatory nodes. New starter is ")
 def interpretSingleInstruct(string_to_interpret):
-    global Node_count, Connection_list, Expression_count, last_node_arr, first_node_arr, pending_connections, handled_pipe
-    
-   
+    global interpretation_called, Node_count, Connection_list, Expression_count, last_node_arr, first_node_arr, pending_connections, handled_pipe
+    #update first node for each time
+    check_new_initial(string_to_interpret)
     print( "I received a " + string_to_interpret + " as regex")
     Connection_list.append("SoL")
     #print("I am interpretSimpleInstruct and I received a " + string_to_interpret)
@@ -170,8 +181,16 @@ def interpretSingleInstruct(string_to_interpret):
             handleAsteriskPlus(i)
         elif (i == '|'):
             if (pending_connections):
-                print("I have pending connections for I had an Or")
-                Connection_list.append((Node_count, "E", last_node_arr[0][2]))
+                print("I have pending connections for I had an Or") #iterate to previous OR before adding.
+                for i in range(len(Connection_list)-1,-1,-1):
+                    if Connection_list[i] == "OR":
+                        t_list=[]
+                        t_list.append((Node_count, "E", last_node_arr[0][2]))
+                        C2= Connection_list[:i]
+                        c3 = Connection_list[i:]
+                        Connection_list = Connection_list[:i] + t_list + Connection_list[i:]
+                        break
+                #Connection_list.append((Node_count, "E", last_node_arr[0][2]))
                 print("Added pipe final connection_ inside for: " + str(last_node_arr[0][2]))
                 pending_connections=False
             handleOr()
@@ -183,8 +202,19 @@ def interpretSingleInstruct(string_to_interpret):
                 #print("Need to update my last_node_arr due to my string being" + string_to_interpret[string_to_interpret.index(i) +1])
                 last_node_arr = []
                 last_node_arr.append((Node_count, i, Node_count + 1))
-            if(handled_pipe):
-                Connection_list.append((first_node_arr[0][0], "E", Node_count))
+            if(handled_pipe): #might need to add here a EoL SoL removal to add this and then readd them after connection
+                for x in range(len(Connection_list)-1,-1,-1):
+                    if Connection_list[x]=="SoL":
+                        #Remove previous two values. 
+                        last_val = []
+                        last_val.append(Connection_list[x-2])
+                        Connection_list = Connection_list[:x-2] + Connection_list[x+1:] + last_val
+                        break
+                #Connection_list = Connection_list[:-2] #removes EoL SoL
+                Connection_list.append("OR") #append identifier
+                Connection_list.append((first_node_arr[0][0], "E", Node_count)) #append initial or connection
+                Connection_list.append("EoL")
+                Connection_list.append("SoL") #returns list to normal behaviour
                 print("Added pipe initial connection: " + str(Connection_list[-1]))
                 handled_pipe=False
             Connection_list.append((Node_count, i, Node_count + 1))
@@ -242,7 +272,16 @@ def readRegex(regex, iter_number, found_parenthesis_at):
                     print("most inner parenthesis found up to now is in " + str(inner_parenthesis_pos))
                     inner_parenthesis_pos +=i
                     #current_string = ""
-                    
+                    if (pending_connections):
+                        print("I have pending connections for I had an Or") #iterate to previous OR before adding.
+                        for i in range(len(Connection_list)-1,-1,-1):
+                            if Connection_list[i] == "OR":
+                                t_list=[]
+                                t_list.append((Node_count, "E", last_node_arr[0][2]))
+                                C2= Connection_list[:i]
+                                c3 = Connection_list[i:]
+                                Connection_list = Connection_list[:i] + t_list + Connection_list[i:]
+                                break
                     print("FOUND OPENNING PARENTHESIS AT " + str(i))
                     if current_string != "":
                         call_interpreter = True
@@ -292,13 +331,19 @@ def readRegex(regex, iter_number, found_parenthesis_at):
                     print("Regex_stack now has " +str(Regex_stack))
                     print("New Regex_stack length is " +str(len(Regex_stack)) + "**************************" )
                     break;
-        if(pending_connections):
-            print("I have pending connections for I had an Or")
-            Connection_list.append((Node_count, "E", last_node_arr[0][2]))
-            print("Added pipe final connection_ inside for: " + str(last_node_arr[0][2]))
-            pending_connections=False          
+        if (pending_connections):
+            print("I have pending connections for I had an Or") #iterate to previous OR before adding.
+            for i in range(len(Connection_list)-1,-1,-1):
+                if Connection_list[i] == "OR":
+                    t_list=[]
+                    t_list.append((Node_count, "E", last_node_arr[0][2]))
+                    C2= Connection_list[:i]
+                    c3 = Connection_list[i:]
+                    Connection_list = Connection_list[:i] + t_list + Connection_list[i:]
+                    break
         print("Resulting Connection List after everything" + str(Connection_list))
 handled_pipe=False
+interpretation_called = 0
 first_node_arr = []
 last_node_arr = []
 pending_connections=False;
@@ -307,6 +352,6 @@ Regex_stack = []
 Connection_list = []
 Node_count = 0
 Expression_count=0
-regex = "(ab)*|b*|(cd)*"
+regex = "a*|(w(b|x))|d"
 readRegex(regex,0,0)
 drawGraph()
