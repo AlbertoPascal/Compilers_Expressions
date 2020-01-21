@@ -2,7 +2,7 @@
 """
 Created on Wed Jan 15 19:16:21 2020
 
-@author: beto_
+@author: beto_, Manu, Roy
 """
 
 
@@ -10,10 +10,11 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 def drawGraph():
-    global Connection_list, regex
+    global Connection_list, regex, DFA
     
     graph_list = list(filter(lambda a: a != 'EoL' and a != 'SoL' and a != 'OR', Connection_list))
     print("my graph list is " + str(graph_list))
+    plt.figure(1)
     G = nx.DiGraph()
     node_list = []
     cont = 0
@@ -40,7 +41,40 @@ def drawGraph():
     nx.draw_networkx_edges(G, pos, edgelist=black_edges, arrows=True, connectionstyle='arc3, rad=0.2')
     #plt.show()
     plt.savefig('NFA.png')
-
+    
+    #Now printing and creating the DFA
+    plt.figure(2)
+    G2 = nx.DiGraph()
+    node_list2 = []
+    cont2 = 0
+    edge_labels2={}
+    for item in DFA:
+        print("I have the dict " + str(item))
+        cont2+=1
+    added_nodes = []
+    #clean DFA list
+    for item in DFA:
+        for x in item:
+            if x != 'Node' and item[x]!= None and item[x]!= '':
+                print("I am in key " + str(x) + " from " + str(item["Node"]))
+                if not str(item[x]).isnumeric() and item[x] not in added_nodes:
+                    print("edited value from " + item[x] +  " to " + str(cont2 + 1))
+                    node_list2.append((item["Node"],str(cont2 + 1)))
+                    added_nodes.append(item[x])
+                    cont2 +=1
+                edge_labels2[(item["Node"],str(cont2))] = str(x)
+    print("This is my new graph_list for DFA: ")
+    print(node_list2)
+    G2.add_edges_from(node_list2, weight = '1')
+    pos = nx.drawing.nx_pydot.graphviz_layout(G2, prog='fdp')
+#    print(pos)
+    black_edges = [edge for edge in G2.edges()]
+    nx.draw_networkx_nodes(G2, pos, cmap=plt.get_cmap('jet'), node_size = 500)
+    nx.draw_networkx_labels(G2, pos, connectionstyle='arc3, rad=-0.2', label_pos = 0.1, fontsize=12)
+    #nx.draw_networkx_edge_labels(G2,pos,edge_labels=edge_labels2, connectionstyle='arc3, rad=0.2', label_pos = 0.8, clip_on = False, font_size=9, bbox=dict(facecolor='red', alpha=0.1), rotate=True)
+    #nx.draw_networkx_edges(G2, pos, edgelist=edge_, edge_color='r', arrows=True)
+    nx.draw_networkx_edges(G2, pos, edgelist=black_edges, arrows=True, connectionstyle='arc3, rad=0.2')
+    plt.savefig('DFA.png')
 def handleOr():
     global Connection_list, pending_connections, Node_count, pending_nodes, Expression_count, last_node_arr, first_node_arr
     print("Received an |")
@@ -441,8 +475,7 @@ Expression_count=0
 regex = "(ab)*"
 update_initial=False
 readRegex(regex,0,0)
-drawGraph()
 generateTable()
 NFAtoDFA()
-
+drawGraph()
 print(DFA)
