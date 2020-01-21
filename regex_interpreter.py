@@ -13,7 +13,7 @@ def drawGraph():
     global Connection_list, regex, DFA
     
     graph_list = list(filter(lambda a: a != 'EoL' and a != 'SoL' and a != 'OR', Connection_list))
-    #print("my graph list is " + str(graph_list))
+    print("my graph list is " + str(graph_list))
     plt.figure(1)
     G = nx.DiGraph()
     node_list = []
@@ -53,18 +53,21 @@ def drawGraph():
         cont2+=1
     added_nodes = []
     #clean DFA list
+    print(DFA)
     for item in DFA:
         for x in item:
             if x != 'Node' and item[x]!= None and item[x]!= '':
-                #print("I am in key " + str(x) + " from " + str(item["Node"]))
+                print("I am in key " + str(x) + " from " + str(item["Node"]))
                 if not str(item[x]).isnumeric() and item[x] not in added_nodes:
-                    #print("edited value from " + item[x] +  " to " + str(cont2 + 1))
+                    print("edited value from " + item[x] +  " to " + str(cont2 + 1))
                     node_list2.append((item["Node"],str(cont2 + 1)))
                     added_nodes.append(item[x])
                     cont2 +=1
+                else:
+                    node_list2.append((item["Node"],str(item[x])))
                 edge_labels2[(item["Node"],str(cont2))] = str(x)
-    #print("This is my new graph_list for DFA: ")
-    #print(node_list2)
+    print("This is my new graph_list for DFA: ")
+    print(node_list2)
     G2.add_edges_from(node_list2, weight = '1')
     pos = nx.drawing.nx_pydot.graphviz_layout(G2, prog='fdp')
 #    #print(pos)
@@ -494,7 +497,7 @@ Regex_stack = []
 Connection_list = []
 Node_count = 0
 Expression_count=0
-regex = "(01)"
+regex = "(ab)"
 update_initial=False
 readRegex(regex,0,0)
 if (generateTable() == True):
