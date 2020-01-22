@@ -324,6 +324,9 @@ def getEclose(currentRead):
 def checkDestinations(nodeArr):
     global transitionTable, Node_count, DFA, edges, edgesDFA
 
+    if (nodeArr[0] == ""):
+        nodeArr = nodeArr[1:]
+
     for node in nodeArr:
         DFA.append(dict())
         for edges in edgesDFA:
@@ -333,7 +336,7 @@ def checkDestinations(nodeArr):
     it = 0
 
     #print(transitionTable)
-    
+    #print(nodeArr)
     for nodes in nodeArr:        
         #print(nodes)
         checkConn = [x.strip() for x in nodes.split(',')]
@@ -360,8 +363,8 @@ def NFAtoDFA():
     if (transitionTable[first_node_arr[0][0]]["E"] != ""):
         nodeArr = [transitionTable[first_node_arr[0][0]]["E"]]
     else:
-        nodeArr = []
-
+        nodeArr = [str(first_node_arr[0][0])]
+    #nodeArr = [transitionTable[first_node_arr[0][0]]["E"]]
     edgesDFA = list(filter(lambda a: a != 'E', edges))
 
     for nodes in range(0, Node_count+1):        
@@ -371,7 +374,8 @@ def NFAtoDFA():
                 if (currentRead[-1] == ","):
                     currentRead = currentRead[:-1]
                 
-                nodeArr.append(getEclose(currentRead))      
+                nodeArr.append(getEclose(currentRead))  
+    
     checkDestinations(nodeArr)
 
 def readRegex(regex, iter_number, found_parenthesis_at):
@@ -485,16 +489,38 @@ def readRegex(regex, iter_number, found_parenthesis_at):
 
 def cleanDFA():
     global DFA
+
+    visited = []
     for node in DFA:
         for key in node:
             if (node[key] != ""):
                 if node[key][-1] == ",":
                     node[key] = node[key][:-1]
+                if (key != "Node"):
+                    if (node[key] not in visited):
+                        visited.append(node[key])
+    
+    for node in DFA:
+        if (node["Node"] not in visited):
+            DFA.remove(node)
+                    
+                    
+        
+def getFinalNodes():
+    global DFA, last_node_arr, DFA_final_nodes
+
+    for node in DFA:
+        nodes_separated = list(filter(lambda a: a != ',', node["Node"]))
+        for nodes_sep in nodes_separated:
+            if (nodes_sep == str(last_node_arr[0][-1])):
+                if node not in DFA_final_nodes:
+                    DFA_final_nodes.append(node["Node"])
 
 transitionTable = []
 edges = []
 edgesDFA = None
 DFA = []
+DFA_final_nodes = []
 handled_pipe=False
 interpretation_called = 0
 first_node_arr = []
@@ -505,7 +531,7 @@ Regex_stack = []
 Connection_list = []
 Node_count = 0
 Expression_count=0
-regex = "ab*"
+regex = "(cd)*(ab)*"
 update_initial=False
 readRegex(regex,0,0)
 Connection_list = list(dict.fromkeys(Connection_list))
@@ -515,6 +541,7 @@ else:
     DFA = transitionTable;
 
 cleanDFA()
-#drawGraph()
+getFinalNodes()
+drawGraph()
 
-print(DFA)
+#print(DFA)
