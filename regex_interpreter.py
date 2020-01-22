@@ -26,14 +26,14 @@ def drawGraph():
     
     G.add_edges_from(node_list, weight = '1')
     #values = [0.25 for node in G.nodes()]
-    ##print(G.edges)
+    #print(G.edges)
     
-    ##print("My node list is now " + str(node_list))
-    ##print("My edge list is now " + str(edge_labels))
+    print("My node list is now " + str(node_list))
+    print("My edge list is now " + str(edge_labels))
 
     black_edges = [edge for edge in G.edges()]
     pos = nx.drawing.nx_pydot.graphviz_layout(G, prog='fdp')
-    ##print(pos)
+    #print(pos)
     nx.draw_networkx_nodes(G, pos, cmap=plt.get_cmap('jet'), node_size = 500)
     nx.draw_networkx_labels(G, pos, connectionstyle='arc3, rad=-0.2', label_pos = 0.1, fontsize=12)
     nx.draw_networkx_edge_labels(G,pos,edge_labels=edge_labels, connectionstyle='arc3, rad=0.2', label_pos = 0.8, clip_on = False, font_size=9, bbox=dict(facecolor='red', alpha=0.1), rotate=True)
@@ -53,30 +53,37 @@ def drawGraph():
         cont2+=1
     added_nodes = []
     #clean DFA list
-    #print(DFA)
-    for item in DFA:
-        for x in item:
-            if x != 'Node' and item[x]!= None and item[x]!= '':
-                #print("I am in key " + str(x) + " from " + str(item["Node"]))
-                if not str(item[x]).isnumeric() and item[x] not in added_nodes:
-                    #print("edited value from " + item[x] +  " to " + str(cont2 + 1))
-                    node_list2.append((item["Node"],str(cont2 + 1)))
-                    added_nodes.append(item[x])
-                    cont2 +=1
-                else:
-                    node_list2.append((item["Node"],str(item[x])))
-                edge_labels2[(item["Node"],str(cont2))] = str(x)
+    print(DFA)
+    for node in DFA:
+        for key in node:
+            if key != 'Node' and node[key]!= '':
+                edge_labels2[ (str(node["Node"]), str(node[key])) ] = key
+                node_list2.append( (str(node["Node"]), str(node[key])) )
+
+    print("Node_label: ")
+    print(node_list2)
+    print("Node_label2: ")
+    print(type(node_list2[0][0]))
+    
+    print("Edge_label: ")
+    print(edge_labels2)
+    print("Edge_label2: ")
+    #print(edge_labels2[0])
+    
+    #print(node_list2)
     #print("This is my new graph_list for DFA: ")
     #print(node_list2)
+    G2.add_edges_from(edge_labels2, weight = '1')
     G2.add_edges_from(node_list2, weight = '1')
-    pos = nx.drawing.nx_pydot.graphviz_layout(G2, prog='fdp')
-#    ##print(pos)
+    pos2 = nx.spring_layout(G2)
+    #pos2 = nx.drawing.nx_pydot.graphviz_layout(G2, prog='fdp')
+    ##print(pos)
     black_edges = [edge for edge in G2.edges()]
-    nx.draw_networkx_nodes(G2, pos, cmap=plt.get_cmap('jet'), node_size = 500)
-    nx.draw_networkx_labels(G2, pos, connectionstyle='arc3, rad=-0.2', label_pos = 0.1, fontsize=12)
-    #nx.draw_networkx_edge_labels(G2,pos,edge_labels=edge_labels2, connectionstyle='arc3, rad=0.2', label_pos = 0.8, clip_on = False, font_size=9, bbox=dict(facecolor='red', alpha=0.1), rotate=True)
-    #nx.draw_networkx_edges(G2, pos, edgelist=edge_, edge_color='r', arrows=True)
-    nx.draw_networkx_edges(G2, pos, edgelist=black_edges, arrows=True, connectionstyle='arc3, rad=0.2')
+    nx.draw_networkx_nodes(G2, pos2, cmap=plt.get_cmap('jet'), node_size = 500)
+    nx.draw_networkx_labels(G2, pos2, connectionstyle='arc3, rad=-0.5', label_pos = 0.1, font_size=8)
+    nx.draw_networkx_edge_labels(G2,pos2,edge_labels=edge_labels2, connectionstyle='arc3, rad=0.2', label_pos = 0.8, clip_on = False, font_size=7, bbox=dict(facecolor='red', alpha=0.1), rotate=True)
+    #nx.draw_networkx_edges(G2, pos2, edgelist=edge_, edge_color='r', arrows=True)
+    nx.draw_networkx_edges(G2, pos2, edgelist=black_edges, arrows=True, connectionstyle='arc3, rad=0.3', arrowsize=3,arrowstyle='fancy')
     plt.savefig('DFA.png')
 def handleOr():
     global Connection_list, pending_connections, Node_count, pending_nodes, Expression_count, last_node_arr, first_node_arr
