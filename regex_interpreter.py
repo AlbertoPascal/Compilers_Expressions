@@ -332,14 +332,18 @@ def checkDestinations(nodeArr):
 
     it = 0
 
+    #print(transitionTable)
+    
     for nodes in nodeArr:        
-        #DFA.append(dict())
-        #DFA[-1]["Node"] = nodes
+        #print(nodes)
         checkConn = [x.strip() for x in nodes.split(',')]
+        #print(checkConn)
         for nodes_separated in checkConn:
             for edges in edgesDFA:
-                path = str(transitionTable[int(nodes_separated)][edges])
                 #print(nodes_separated + "    " +str(edges) + "----"+ str(transitionTable[int(nodes_separated)][edges]))
+                #print(nodes_separated + " -  " +str(edges))
+                path = str(transitionTable[int(nodes_separated)][edges])
+                
                 DFA[it][str(edges)] += str(path)
             
                 if (path != ""):
@@ -353,9 +357,11 @@ def checkDestinations(nodeArr):
 def NFAtoDFA():
     global transitionTable, Node_count, DFA, edges, edgesDFA, first_node_arr
     currentRead = ""
-    
-    nodeArr = [transitionTable[first_node_arr[0][0]]["E"]]
-    
+    if (transitionTable[first_node_arr[0][0]]["E"] != ""):
+        nodeArr = [transitionTable[first_node_arr[0][0]]["E"]]
+    else:
+        nodeArr = []
+
     edgesDFA = list(filter(lambda a: a != 'E', edges))
 
     for nodes in range(0, Node_count+1):        
@@ -364,9 +370,10 @@ def NFAtoDFA():
             if (currentRead != ""):
                 if (currentRead[-1] == ","):
                     currentRead = currentRead[:-1]
-                nodeArr.append(getEclose(currentRead))
-            
+                
+                nodeArr.append(getEclose(currentRead))      
     checkDestinations(nodeArr)
+
 def readRegex(regex, iter_number, found_parenthesis_at):
     global Connection_list, Regex_stack, Expression_count, pending_connections, last_node_arr, first_node_arr
     ##print("starting iteration " + str(iter_number))
@@ -498,7 +505,7 @@ Regex_stack = []
 Connection_list = []
 Node_count = 0
 Expression_count=0
-regex = "ab"
+regex = "ab*"
 update_initial=False
 readRegex(regex,0,0)
 Connection_list = list(dict.fromkeys(Connection_list))
@@ -509,5 +516,5 @@ else:
 
 cleanDFA()
 #drawGraph()
-print(Connection_list)
+
 print(DFA)
