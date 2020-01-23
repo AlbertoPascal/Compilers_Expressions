@@ -81,11 +81,11 @@ def drawGraph():
         #pos2 = nx.drawing.nx_pydot.graphviz_layout(G2, prog='fdp')
         ##print(pos)
         black_edges = [edge for edge in G2.edges()]
-        nx.draw_networkx_nodes(G2, pos2, cmap=plt.get_cmap('jet'), node_size = 500)
-        nx.draw_networkx_labels(G2, pos2, connectionstyle='arc3, rad=-0.5', label_pos = 0.1, font_size=8)
+        nx.draw_networkx_nodes(G2, pos2, cmap=plt.get_cmap('jet'), node_size = 50)
+        nx.draw_networkx_labels(G2, pos2, connectionstyle='arc3, rad=-0.5', label_pos = 0.2, font_size=8)
         nx.draw_networkx_edge_labels(G2,pos2,edge_labels=edge_labels2, connectionstyle='arc3, rad=0.2', label_pos = 0.8, clip_on = False, font_size=7, bbox=dict(facecolor='red', alpha=0.1), rotate=True)
         #nx.draw_networkx_edges(G2, pos2, edgelist=edge_, edge_color='r', arrows=True)
-        nx.draw_networkx_edges(G2, pos2, edgelist=black_edges, arrows=True, connectionstyle='arc3, rad=0.3', arrowsize=25)       
+        nx.draw_networkx_edges(G2, pos2, edgelist=black_edges, arrows=True, connectionstyle='arc3, rad=1.3', arrowsize=25)       
         plt.savefig('DFA.png')
     else:
         plt.savefig('DFA.png')
@@ -545,7 +545,7 @@ Regex_stack = []
 Connection_list = []
 Node_count = 0
 Expression_count=0
-regex = "(ab)*"
+regex = "(a|b)*"
 update_initial=False
 readRegex(regex,0,0)
 Connection_list = list(dict.fromkeys(Connection_list))
