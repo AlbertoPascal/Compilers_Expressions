@@ -28,7 +28,7 @@ def drawGraph():
     #values = [0.25 for node in G.nodes()]
     #print(G.edges)
     
-    print("My node list is now " + str(node_list))
+    print("NFA: " )# + str(node_list))
     print("My edge list is now " + str(edge_labels))
 
     black_edges = [edge for edge in G.edges()]
@@ -107,10 +107,10 @@ def handleOr():
     first_node_arr = []
     first_node_arr.append((Node_count -1, "E", Connection_list[-1][2])) #podría estar actualizandose mal.
     
-    print("****************Newest Inicial node*******************")
-    print(first_node_arr[0][0])
-    print("****************Newest final node*******************")
-    print(last_node_arr[0][2])
+#    print("****************Newest Inicial node*******************")
+#    print(first_node_arr[0][0])
+#    print("****************Newest final node*******************")
+#    print(last_node_arr[0][2])
     Node_count+=1 #prepare to create right part of pipe
     
     pending_connections = True
@@ -186,8 +186,6 @@ def handleAsteriskPlus(invoker_char):
              looped_or = False
              initial_node = first_node_arr[0][0]
              final_node = last_node_arr [0][2]
-             print("DEBO ARREGLAR")
-             print("NEW***********" + str(initial_node) + " f: " + str(final_node))
          
          Connection_list.append((final_node, "E", initial_node))
          if(invoker_char == '*'):
@@ -535,13 +533,13 @@ def cleanDFA():
                 if (key != "Node"):
                     if (node[key] not in visited):
                         visited.append(node[key])
-    print(visited)
+    #print(visited)
     for node in DFA:
         if (node["Node"] not in visited):
             DFA.remove(node)
     
-    print("---After clean---")
-    print(DFA)
+    #print("---After clean---")
+    #print(DFA)
                     
         
 def getFinalNodes():
@@ -581,8 +579,7 @@ if (generateTable() == True):
 else:
     DFA = transitionTable;
     NFAisDFA = True
-print("---DFA---")
-print(DFA)
+
 cleanDFA()
 getFinalNodes()
 drawGraph()
