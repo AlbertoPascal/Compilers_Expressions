@@ -10,7 +10,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 def drawGraph():
-    global Connection_list, regex, DFA
+    global Connection_list, regex, DFA, NFAisDFA
     
     graph_list = list(filter(lambda a: a != 'EoL' and a != 'SoL' and a != 'OR', Connection_list))
     #print("my graph list is " + str(graph_list))
@@ -42,49 +42,54 @@ def drawGraph():
     #plt.show()
     plt.savefig('NFA.png')
     
-    #Now ##printing and creating the DFA
-    plt.figure(2)
-    G2 = nx.DiGraph()
-    node_list2 = []
-    cont2 = 0
-    edge_labels2={}
-    for item in DFA:
-        ##print("I have the dict " + str(item))
-        cont2+=1
-    added_nodes = []
-    #clean DFA list
-    print(DFA)
-    for node in DFA:
-        for key in node:
-            if key != 'Node' and node[key]!= '':
-                edge_labels2[ (str(node["Node"]), str(node[key])) ] = key
-                node_list2.append( (str(node["Node"]), str(node[key])) )
+    if(NFAisDFA == False):
+        #Now ##printing and creating the DFA
+        plt.figure(2)
+        G2 = nx.DiGraph()
+        node_list2 = []
+        cont2 = 0
+        edge_labels2={}
+        for item in DFA:
+            ##print("I have the dict " + str(item))
+            cont2+=1
+        added_nodes = []
+        #clean DFA list
+        print("---DFA---")
+        print(DFA)
+        for node in DFA:
+            for key in node:
+                if key != 'Node' and node[key]!= '':
+                    edge_labels2[ (str(node["Node"]), str(node[key])) ] = key
+                    node_list2.append( (str(node["Node"]), str(node[key])) )
 
-    print("Node_label: ")
-    print(node_list2)
-    print("Node_label2: ")
-    #print(type(node_list2[0][0]))
-    
-    print("Edge_label: ")
-    print(edge_labels2)
-    print("Edge_label2: ")
-    #print(edge_labels2[0])
-    
-    #print(node_list2)
-    #print("This is my new graph_list for DFA: ")
-    #print(node_list2)
-    G2.add_edges_from(edge_labels2, weight = '1')
-    G2.add_edges_from(node_list2, weight = '1')
-    pos2 = nx.spring_layout(G2)
-    #pos2 = nx.drawing.nx_pydot.graphviz_layout(G2, prog='fdp')
-    ##print(pos)
-    black_edges = [edge for edge in G2.edges()]
-    nx.draw_networkx_nodes(G2, pos2, cmap=plt.get_cmap('jet'), node_size = 500)
-    nx.draw_networkx_labels(G2, pos2, connectionstyle='arc3, rad=-0.5', label_pos = 0.1, font_size=8)
-    nx.draw_networkx_edge_labels(G2,pos2,edge_labels=edge_labels2, connectionstyle='arc3, rad=0.2', label_pos = 0.8, clip_on = False, font_size=7, bbox=dict(facecolor='red', alpha=0.1), rotate=True)
-    #nx.draw_networkx_edges(G2, pos2, edgelist=edge_, edge_color='r', arrows=True)
-    nx.draw_networkx_edges(G2, pos2, edgelist=black_edges, arrows=True, connectionstyle='arc3, rad=0.3', arrowsize=3,arrowstyle='fancy')
-    plt.savefig('DFA.png')
+        print("Node_label: ")
+        print(node_list2)
+        print("Node_label2: ")
+        #print(type(node_list2[0][0]))
+        
+        print("Edge_label: ")
+        print(edge_labels2)
+        print("Edge_label2: ")
+        #print(edge_labels2[0])
+        
+        #print(node_list2)
+        #print("This is my new graph_list for DFA: ")
+        #print(node_list2)
+        G2.add_edges_from(edge_labels2, weight = '1')
+        G2.add_edges_from(node_list2, weight = '1')
+        pos2 = nx.spring_layout(G2)
+        #pos2 = nx.drawing.nx_pydot.graphviz_layout(G2, prog='fdp')
+        ##print(pos)
+        black_edges = [edge for edge in G2.edges()]
+        nx.draw_networkx_nodes(G2, pos2, cmap=plt.get_cmap('jet'), node_size = 50)
+        nx.draw_networkx_labels(G2, pos2, connectionstyle='arc3, rad=-0.5', label_pos = 0.2, font_size=8)
+        nx.draw_networkx_edge_labels(G2,pos2,edge_labels=edge_labels2, connectionstyle='arc3, rad=0.2', label_pos = 0.8, clip_on = False, font_size=7, bbox=dict(facecolor='red', alpha=0.1), rotate=True)
+        #nx.draw_networkx_edges(G2, pos2, edgelist=edge_, edge_color='r', arrows=True)
+        nx.draw_networkx_edges(G2, pos2, edgelist=black_edges, arrows=True, connectionstyle='arc3, rad=1.3', arrowsize=25)       
+        plt.savefig('DFA.png')
+    else:
+        plt.savefig('DFA.png')
+
 def handleOr():
     global Connection_list, pending_connections, Node_count, pending_nodes, Expression_count, last_node_arr, first_node_arr
     ##print("Received an |")
@@ -94,14 +99,12 @@ def handleOr():
     Connection_list.append((Node_count, "E", first_node_arr[0][0]))
     ##print("Appending new connection: " + str((Node_count, "E", first_node_arr[0][0])))
     Node_count+=1
-    first_node_arr = []
-    first_node_arr.append((Node_count -1, "E", Connection_list[-1][2])) #podría estar actualizandose mal.
     ##print("Appending new connection: " + str((last_node_arr[0][2], "E", Node_count)))
     Connection_list.append((last_node_arr[0][2], "E", Node_count))
-    
     last_node_arr = []
     last_node_arr.append((Connection_list[-1][0], "E", Node_count)) #podría estar afectando el conenction list
-    
+    first_node_arr = []
+    first_node_arr.append((Node_count -1, "E", Connection_list[-1][2])) #podría estar actualizandose mal.
     
     ##print("****************Newest Inicial node*******************")
     ##print(first_node_arr[0][0])
@@ -216,7 +219,7 @@ def check_new_initial(string_to_interpret):
 def interpretSingleInstruct(string_to_interpret):
     global interpretation_called, Node_count, Connection_list, Expression_count, last_node_arr, first_node_arr, pending_connections, handled_pipe
     #update first node for each time
-    #check_new_initial(string_to_interpret)
+    check_new_initial(string_to_interpret)
     ##print( "I received a " + string_to_interpret + " as regex")
     Connection_list.append("SoL")
     ###print("I am interpretSimpleInstruct and I received a " + string_to_interpret)
@@ -250,7 +253,7 @@ def interpretSingleInstruct(string_to_interpret):
                 last_node_arr.append((Node_count, i, Node_count + 1))
             if(handled_pipe): #might need to add here a EoL SoL removal to add this and then readd them after connection
                 for x in range(len(Connection_list)-1,-1,-1):
-                    if Connection_list[x]=="SoL" and Connection_list[x-1] == "EoL":
+                    if Connection_list[x]=="SoL":
                         #Remove previous two values. 
                         last_val = []
                         last_val.append(Connection_list[x-2])
@@ -309,7 +312,7 @@ def generateTable():
     for node in transitionTable:
         ###print(node.keys())
         if "E" not in node.keys():
-            ##print("YES")
+            print("YES")
             return False
 
     for nodes in transitionTable:
@@ -435,13 +438,11 @@ def readRegex(regex, iter_number, found_parenthesis_at):
                                 c3 = Connection_list[i:]
                                 Connection_list = Connection_list[:i] + t_list + Connection_list[i:]
                                 break
-                        pending_connections=False
                     ##print("FOUND OPENNING PARENTHESIS AT " + str(i))
                     if current_string != "":
                         call_interpreter = True
                         called_by_parenthesis=True
                 elif(Regex_stack[i]==")"):
-                    
                     Expression_count = Expression_count + 1
                     if(i + 1 < len(Regex_stack) and (Regex_stack[i+1] == "*" or Regex_stack[i+1] == "+")):
                         special_char = True
@@ -473,18 +474,6 @@ def readRegex(regex, iter_number, found_parenthesis_at):
                     if(special_char == True):
                         special_char = False
                         current_string = Regex_stack[special_char_pos]
-                        if (pending_connections):
-                        ##print("I have pending connections for I had an Or") #iterate to previous OR before adding.
-                            
-                            for i in range(len(Connection_list)-1,-1,-1):
-                                if Connection_list[i] == "OR":
-                                    t_list=[]
-                                    t_list.append((Node_count, "E", last_node_arr[0][2]))
-                                    C2= Connection_list[:i]
-                                    c3 = Connection_list[i:]
-                                    Connection_list = Connection_list[:i] + t_list + Connection_list[i:]
-                                    break
-                            pending_connections=False
                         ##print("calling interpreter with str: " + current_string)
                         interpretSingleInstruct(current_string)
                         Regex_stack = Regex_stack[:inner_parenthesis_pos] + Regex_stack [special_char_pos+1:]
@@ -508,13 +497,12 @@ def readRegex(regex, iter_number, found_parenthesis_at):
                     c3 = Connection_list[i:]
                     Connection_list = Connection_list[:i] + t_list + Connection_list[i:]
                     break
-            pending_connections=False
         ##print("Resulting Connection List after everything" + str(Connection_list))
 
 def cleanDFA():
     global DFA
 
-    visited = []
+    visited = [DFA[0]["Node"]]
     for node in DFA:
         for key in node:
             if (node[key] != ""):
@@ -523,11 +511,13 @@ def cleanDFA():
                 if (key != "Node"):
                     if (node[key] not in visited):
                         visited.append(node[key])
-    
+    print(visited)
     for node in DFA:
         if (node["Node"] not in visited):
             DFA.remove(node)
-                    
+    
+    print("---After clean---")
+    print(DFA)
                     
         
 def getFinalNodes():
@@ -555,17 +545,21 @@ Regex_stack = []
 Connection_list = []
 Node_count = 0
 Expression_count=0
-regex = "a|b"
+regex = "(a*|b*)*"
 update_initial=False
 readRegex(regex,0,0)
 Connection_list = list(dict.fromkeys(Connection_list))
+NFAisDFA = None
 if (generateTable() == True):
+    NFAisDFA = False
     NFAtoDFA()
 else:
     DFA = transitionTable;
-
+    NFAisDFA = True
+print("---DFA---")
+print(DFA)
 cleanDFA()
 getFinalNodes()
-print(DFA)
 drawGraph()
 
+#print(DFA)
