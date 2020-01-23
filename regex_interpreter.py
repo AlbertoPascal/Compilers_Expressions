@@ -91,9 +91,10 @@ def drawGraph():
         plt.savefig('DFA.png')
 
 def handleOr():
-    global Connection_list, pending_connections, Node_count, pending_nodes, Expression_count, last_node_arr, first_node_arr
+    global looped_or, Connection_list, pending_connections, Node_count, pending_nodes, Expression_count, last_node_arr, first_node_arr
     ##print("Received an |")
     #Adding the new first and last nodes
+    looped_or = True
     Node_count+=1
     Expression_count=0
     Connection_list.append((Node_count, "E", first_node_arr[0][0]))
@@ -147,7 +148,7 @@ def OrConnectionHelper():
 #    
     return 0
 def handleAsteriskPlus(invoker_char):
-    global Node_count, Connection_list, Expression_count, last_node_arr, first_node_arr, pending_connections
+    global looped_or, Node_count, Connection_list, Expression_count, last_node_arr, first_node_arr, pending_connections
     ###print("fonud")
     ##print("My invoker char was " + invoker_char)
     
@@ -181,8 +182,8 @@ def handleAsteriskPlus(invoker_char):
                 # ##print("My sol count is now " + str(Sol_count))
                  #if Sol_count >= Expression_count:
                  break
-         if("OR" in Connection_list):
-             
+         if("OR" in Connection_list and looped_or):
+             looped_or = False
              initial_node = first_node_arr[0][0]
              final_node = last_node_arr [0][2]
              print("DEBO ARREGLAR")
@@ -222,12 +223,13 @@ def check_new_initial(string_to_interpret):
             if i == "SoL":
                 current_sol_count+=1
                 if current_sol_count == interpretation_called:
+                    
                     first_node_arr = Connection_list[Connection_list.index(i+1)]
                     ##print("Updated my starter due to obligatory nodes. New starter is ")
 def interpretSingleInstruct(string_to_interpret):
     global interpretation_called, Node_count, Connection_list, Expression_count, last_node_arr, first_node_arr, pending_connections, handled_pipe
     #update first node for each time
-    check_new_initial(string_to_interpret)
+    #check_new_initial(string_to_interpret)
     ##print( "I received a " + string_to_interpret + " as regex")
     Connection_list.append("SoL")
     ###print("I am interpretSimpleInstruct and I received a " + string_to_interpret)
@@ -247,6 +249,7 @@ def interpretSingleInstruct(string_to_interpret):
                         c3 = Connection_list[i:]
                         Connection_list = Connection_list[:i] + t_list + Connection_list[i:]
                         break
+                    pending_connections=False
                 #Connection_list.append((Node_count, "E", last_node_arr[0][2]))
                 ##print("Added pipe final connection_ inside for: " + str(last_node_arr[0][2]))
                 pending_connections=False
@@ -446,6 +449,7 @@ def readRegex(regex, iter_number, found_parenthesis_at):
                                 c3 = Connection_list[i:]
                                 Connection_list = Connection_list[:i] + t_list + Connection_list[i:]
                                 break
+                        pending_connections=False
                     ##print("FOUND OPENNING PARENTHESIS AT " + str(i))
                     if current_string != "":
                         call_interpreter = True
@@ -492,6 +496,7 @@ def readRegex(regex, iter_number, found_parenthesis_at):
                                     c3 = Connection_list[i:]
                                     Connection_list = Connection_list[:i] + t_list + Connection_list[i:]
                                     break
+                            pending_connections=False
                         ##print("calling interpreter with str: " + current_string)
                         interpretSingleInstruct(current_string)
                         Regex_stack = Regex_stack[:inner_parenthesis_pos] + Regex_stack [special_char_pos+1:]
@@ -515,6 +520,7 @@ def readRegex(regex, iter_number, found_parenthesis_at):
                     c3 = Connection_list[i:]
                     Connection_list = Connection_list[:i] + t_list + Connection_list[i:]
                     break
+            pending_connections=False
         ##print("Resulting Connection List after everything" + str(Connection_list))
 
 def cleanDFA():
@@ -562,8 +568,9 @@ pending_nodes = []
 Regex_stack = []
 Connection_list = []
 Node_count = 0
+looped_or = False
 Expression_count=0
-regex = "(a|b|c)*"
+regex = "(a|b|c)*(ab)*"
 update_initial=False
 readRegex(regex,0,0)
 Connection_list = list(dict.fromkeys(Connection_list))
