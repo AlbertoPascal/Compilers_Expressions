@@ -10,7 +10,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 def drawGraph():
-    global Connection_list, regex, DFA
+    global Connection_list, regex, DFA, NDAisDFA
     
     graph_list = list(filter(lambda a: a != 'EoL' and a != 'SoL' and a != 'OR', Connection_list))
     #print("my graph list is " + str(graph_list))
@@ -42,49 +42,53 @@ def drawGraph():
     #plt.show()
     plt.savefig('NFA.png')
     
-    #Now ##printing and creating the DFA
-    plt.figure(2)
-    G2 = nx.DiGraph()
-    node_list2 = []
-    cont2 = 0
-    edge_labels2={}
-    for item in DFA:
-        ##print("I have the dict " + str(item))
-        cont2+=1
-    added_nodes = []
-    #clean DFA list
-    print(DFA)
-    for node in DFA:
-        for key in node:
-            if key != 'Node' and node[key]!= '':
-                edge_labels2[ (str(node["Node"]), str(node[key])) ] = key
-                node_list2.append( (str(node["Node"]), str(node[key])) )
+    if(NFAisDFA == True): 
+        #Now ##printing and creating the DFA
+        plt.figure(2)
+        G2 = nx.DiGraph()
+        node_list2 = []
+        cont2 = 0
+        edge_labels2={}
+        for item in DFA:
+            ##print("I have the dict " + str(item))
+            cont2+=1
+        added_nodes = []
+        #clean DFA list
+        print(DFA)
+        for node in DFA:
+            for key in node:
+                if key != 'Node' and node[key]!= '':
+                    edge_labels2[ (str(node["Node"]), str(node[key])) ] = key
+                    node_list2.append( (str(node["Node"]), str(node[key])) )
 
-    print("Node_label: ")
-    print(node_list2)
-    print("Node_label2: ")
-    print(type(node_list2[0][0]))
-    
-    print("Edge_label: ")
-    print(edge_labels2)
-    print("Edge_label2: ")
-    #print(edge_labels2[0])
-    
-    #print(node_list2)
-    #print("This is my new graph_list for DFA: ")
-    #print(node_list2)
-    G2.add_edges_from(edge_labels2, weight = '1')
-    G2.add_edges_from(node_list2, weight = '1')
-    pos2 = nx.spring_layout(G2)
-    #pos2 = nx.drawing.nx_pydot.graphviz_layout(G2, prog='fdp')
-    ##print(pos)
-    black_edges = [edge for edge in G2.edges()]
-    nx.draw_networkx_nodes(G2, pos2, cmap=plt.get_cmap('jet'), node_size = 500)
-    nx.draw_networkx_labels(G2, pos2, connectionstyle='arc3, rad=-0.5', label_pos = 0.1, font_size=8)
-    nx.draw_networkx_edge_labels(G2,pos2,edge_labels=edge_labels2, connectionstyle='arc3, rad=0.2', label_pos = 0.8, clip_on = False, font_size=7, bbox=dict(facecolor='red', alpha=0.1), rotate=True)
-    #nx.draw_networkx_edges(G2, pos2, edgelist=edge_, edge_color='r', arrows=True)
-    nx.draw_networkx_edges(G2, pos2, edgelist=black_edges, arrows=True, connectionstyle='arc3, rad=0.3', arrowsize=3,arrowstyle='fancy')
-    plt.savefig('DFA.png')
+        print("Node_label: ")
+        print(node_list2)
+        print("Node_label2: ")
+        print(type(node_list2[0][0]))
+        
+        print("Edge_label: ")
+        print(edge_labels2)
+        print("Edge_label2: ")
+        #print(edge_labels2[0])
+        
+        #print(node_list2)
+        #print("This is my new graph_list for DFA: ")
+        #print(node_list2)
+        G2.add_edges_from(edge_labels2, weight = '1')
+        G2.add_edges_from(node_list2, weight = '1')
+        pos2 = nx.spring_layout(G2)
+        #pos2 = nx.drawing.nx_pydot.graphviz_layout(G2, prog='fdp')
+        ##print(pos)
+        black_edges = [edge for edge in G2.edges()]
+        nx.draw_networkx_nodes(G2, pos2, cmap=plt.get_cmap('jet'), node_size = 500)
+        nx.draw_networkx_labels(G2, pos2, connectionstyle='arc3, rad=-0.5', label_pos = 0.1, font_size=8)
+        nx.draw_networkx_edge_labels(G2,pos2,edge_labels=edge_labels2, connectionstyle='arc3, rad=0.2', label_pos = 0.8, clip_on = False, font_size=7, bbox=dict(facecolor='red', alpha=0.1), rotate=True)
+        #nx.draw_networkx_edges(G2, pos2, edgelist=edge_, edge_color='r', arrows=True)
+        nx.draw_networkx_edges(G2, pos2, edgelist=black_edges, arrows=True, connectionstyle='arc3, rad=0.3', arrowsize=3,arrowstyle='fancy')       
+        plt.savefig('DFA.png')
+    else:
+        plt.savefig('DFA.png')
+
 def handleOr():
     global Connection_list, pending_connections, Node_count, pending_nodes, Expression_count, last_node_arr, first_node_arr
     ##print("Received an |")
@@ -538,14 +542,17 @@ Regex_stack = []
 Connection_list = []
 Node_count = 0
 Expression_count=0
-regex = "(cd)*(ab)*"
+regex = "ab"
 update_initial=False
 readRegex(regex,0,0)
 Connection_list = list(dict.fromkeys(Connection_list))
+NFAisDFA = False;
 if (generateTable() == True):
+    NDAisDFA = False
     NFAtoDFA()
 else:
     DFA = transitionTable;
+    NDAisDFA = True
 
 cleanDFA()
 getFinalNodes()
