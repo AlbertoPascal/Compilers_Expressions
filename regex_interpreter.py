@@ -106,10 +106,10 @@ def handleOr():
     first_node_arr = []
     first_node_arr.append((Node_count -1, "E", Connection_list[-1][2])) #podría estar actualizandose mal.
     
-    ##print("****************Newest Inicial node*******************")
-    ##print(first_node_arr[0][0])
-    ##print("****************Newest final node*******************")
-    ##print(last_node_arr[0][2])
+    print("****************Newest Inicial node*******************")
+    print(first_node_arr[0][0])
+    print("****************Newest final node*******************")
+    print(last_node_arr[0][2])
     Node_count+=1 #prepare to create right part of pipe
     
     pending_connections = True
@@ -181,6 +181,13 @@ def handleAsteriskPlus(invoker_char):
                 # ##print("My sol count is now " + str(Sol_count))
                  #if Sol_count >= Expression_count:
                  break
+         if("OR" in Connection_list):
+             
+             initial_node = first_node_arr[0][0]
+             final_node = last_node_arr [0][2]
+             print("DEBO ARREGLAR")
+             print("NEW***********" + str(initial_node) + " f: " + str(final_node))
+         
          Connection_list.append((final_node, "E", initial_node))
          if(invoker_char == '*'):
             Connection_list.append((initial_node, "E", Node_count + 1))
@@ -193,6 +200,7 @@ def handleAsteriskPlus(invoker_char):
          Node_count = Node_count +1
     else: #Agarrar el connection_list{-1}
         #connector_letter = Connection_list[-1][1]
+        
         initial_node = Connection_list[-1][0]
         final_node = Connection_list[-1][2]
         if(invoker_char == '*'):
@@ -474,6 +482,16 @@ def readRegex(regex, iter_number, found_parenthesis_at):
                     if(special_char == True):
                         special_char = False
                         current_string = Regex_stack[special_char_pos]
+                        if (pending_connections):
+            ##print("I have pending connections for I had an Or") #iterate to previous OR before adding.
+                            for i in range(len(Connection_list)-1,-1,-1):
+                                if Connection_list[i] == "OR":
+                                    t_list=[]
+                                    t_list.append((Node_count, "E", last_node_arr[0][2]))
+                                    C2= Connection_list[:i]
+                                    c3 = Connection_list[i:]
+                                    Connection_list = Connection_list[:i] + t_list + Connection_list[i:]
+                                    break
                         ##print("calling interpreter with str: " + current_string)
                         interpretSingleInstruct(current_string)
                         Regex_stack = Regex_stack[:inner_parenthesis_pos] + Regex_stack [special_char_pos+1:]
@@ -545,7 +563,7 @@ Regex_stack = []
 Connection_list = []
 Node_count = 0
 Expression_count=0
-regex = "(a|b)*"
+regex = "(a|b|c)*"
 update_initial=False
 readRegex(regex,0,0)
 Connection_list = list(dict.fromkeys(Connection_list))
