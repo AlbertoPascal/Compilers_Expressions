@@ -10,7 +10,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 def drawGraph():
-    global Connection_list, regex, DFA, NDAisDFA
+    global Connection_list, regex, DFA, NFAisDFA
     
     graph_list = list(filter(lambda a: a != 'EoL' and a != 'SoL' and a != 'OR', Connection_list))
     #print("my graph list is " + str(graph_list))
@@ -42,7 +42,7 @@ def drawGraph():
     #plt.show()
     plt.savefig('NFA.png')
     
-    if(NFAisDFA == True): 
+    if(NFAisDFA == False):
         #Now ##printing and creating the DFA
         plt.figure(2)
         G2 = nx.DiGraph()
@@ -54,6 +54,7 @@ def drawGraph():
             cont2+=1
         added_nodes = []
         #clean DFA list
+        print("---DFA---")
         print(DFA)
         for node in DFA:
             for key in node:
@@ -64,7 +65,7 @@ def drawGraph():
         print("Node_label: ")
         print(node_list2)
         print("Node_label2: ")
-        print(type(node_list2[0][0]))
+        #print(type(node_list2[0][0]))
         
         print("Edge_label: ")
         print(edge_labels2)
@@ -311,7 +312,7 @@ def generateTable():
     for node in transitionTable:
         ###print(node.keys())
         if "E" not in node.keys():
-            ##print("YES")
+            print("YES")
             return False
 
     for nodes in transitionTable:
@@ -501,7 +502,7 @@ def readRegex(regex, iter_number, found_parenthesis_at):
 def cleanDFA():
     global DFA
 
-    visited = []
+    visited = [DFA[0]["Node"]]
     for node in DFA:
         for key in node:
             if (node[key] != ""):
@@ -510,11 +511,13 @@ def cleanDFA():
                 if (key != "Node"):
                     if (node[key] not in visited):
                         visited.append(node[key])
-    
+    print(visited)
     for node in DFA:
         if (node["Node"] not in visited):
             DFA.remove(node)
-                    
+    
+    print("---After clean---")
+    print(DFA)
                     
         
 def getFinalNodes():
@@ -542,18 +545,19 @@ Regex_stack = []
 Connection_list = []
 Node_count = 0
 Expression_count=0
-regex = "ab"
+regex = "a|b"
 update_initial=False
 readRegex(regex,0,0)
 Connection_list = list(dict.fromkeys(Connection_list))
-NFAisDFA = False;
+NFAisDFA = None
 if (generateTable() == True):
-    NDAisDFA = False
+    NFAisDFA = False
     NFAtoDFA()
 else:
     DFA = transitionTable;
-    NDAisDFA = True
-
+    NFAisDFA = True
+print("---DFA---")
+print(DFA)
 cleanDFA()
 getFinalNodes()
 drawGraph()
